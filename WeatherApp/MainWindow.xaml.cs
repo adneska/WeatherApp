@@ -25,10 +25,10 @@ namespace WeatherApp
         {
             InitializeComponent();
         }
-        static string GetApiKey()
+        private static string GetApiKey()
         {
             var builder = new ConfigurationBuilder()
-                .AddUserSecrets<MainWindow>(); // Подключаем User Secrets
+                .AddUserSecrets<MainWindow>(); 
 
             IConfiguration configuration = builder.Build();
 
@@ -50,19 +50,26 @@ namespace WeatherApp
                 var json = await web.GetStringAsync(url);
                 WeatherInfo.root Info = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
 
-                BitmapImage bitmapImage = new BitmapImage();                
-                bitmapImage.UriSource = new Uri("https://openweathermap.org/img/w/" + Info.weather[0].icon + ".png");                
-                WeatherPicture.Source = bitmapImage;
+                
 
-                Condition.Text = Info.weather[0].main;
-                Details.Text = Info.weather[0].description;
-                Sunset.Text = GetCorrectTime(Info.sys.sunset);
-                Sunrise.Text = GetCorrectTime(Info.sys.sunrise);
-                WindSpeed.Text = Info.wind.speed.ToString();
-                Preasure.Text = Info.main.pressure.ToString();
-
+                SetData(Info);
             }
         }
+
+        private void SetData(WeatherInfo.root Info)
+        {
+            Condition.Text = Info.weather[0].main;
+            Details.Text = Info.weather[0].description;
+            Sunset.Text = GetCorrectTime(Info.sys.sunset);
+            Sunrise.Text = GetCorrectTime(Info.sys.sunrise);
+            WindSpeed.Text = Info.wind.speed.ToString();
+            Preasure.Text = Info.main.pressure.ToString();
+
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.UriSource = new Uri("https://openweathermap.org/img/w/" + Info.weather[0].icon + ".png");
+            WeatherPicture.Source = bitmapImage;
+        }
+
         public static string GetCorrectTime(long time)
         {
             DateTime day = DateTime.UnixEpoch.AddSeconds(time);
