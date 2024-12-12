@@ -11,6 +11,8 @@ using System.Windows.Shapes;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace WeatherApp
 {
@@ -23,8 +25,17 @@ namespace WeatherApp
         {
             InitializeComponent();
         }
+        static string GetApiKey()
+        {
+            var builder = new ConfigurationBuilder()
+                .AddUserSecrets<MainWindow>(); // Подключаем User Secrets
 
-        string APIKey = "fbc651e37c2f6a34113a44b53d6a3574";
+            IConfiguration configuration = builder.Build();
+
+            return configuration["ApiSettings:ApiKey"];
+            
+        }
+        
         
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -34,7 +45,8 @@ namespace WeatherApp
         {
             using (HttpClient web = new HttpClient())
             {
-                var url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&Appid={1}", CityName.Text, APIKey);
+                
+                var url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&Appid={1}", CityName.Text, GetApiKey());
                 var json = await web.GetStringAsync(url);
                 WeatherInfo.root Info = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
 
